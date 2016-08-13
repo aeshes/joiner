@@ -1,3 +1,5 @@
+include simcrypt.inc
+
 .data
 	
 hThisModule		dd 0

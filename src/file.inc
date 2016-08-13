@@ -12,6 +12,9 @@ ChangeFileExtension PROC filename : DWORD, ext : DWORD
 	ret 8
 ChangeFileExtension ENDP
 
+;
+; Extracting, decrypting and writing file
+;
 WriteFunc PROC filename : DWORD, filesize : DWORD
 	local hMem	   : DWORD
 	local hFile    : DWORD
@@ -30,6 +33,8 @@ WriteFunc PROC filename : DWORD, filesize : DWORD
 	invoke ReadFile, hThisModule, hMem, filesize, addr nBytes, 0
 	cmp nBytes, 0
 	jz WF_ERROR
+	
+	invoke crypt, hMem, filesize
 	invoke WriteFile, hFile, hMem, filesize, addr nBytes, 0
 	
 	invoke GlobalFree, hMem
