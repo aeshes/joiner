@@ -1,5 +1,7 @@
 .data
-sbox	db 256 dup(0)
+sbox		db 256 dup(0)
+rc4key			db "POSOSIPISOS",0
+rc4keylen		db 11
 
 .code
 
@@ -33,3 +35,30 @@ init_key:
 	popad
 	ret 8
 rc4init ENDP
+
+crypt PROC data: PCHAR, datalength : DWORD
+	invoke rc4init, offset rc4key, 11
+	pushad
+	xor		eax, eax				; i = 0
+	xor		ebx, ebx
+	xor		edx, edx
+	mov		esi, offset sbox
+	mov		edi, data
+	mov		ecx, datalength
+;--------------------------------------------------------------;
+; ESI = sbox, EDI = data, ECX = size of data, EAX = i, EBX = j ;
+;--------------------------------------------------------------;
+crypt_data:
+	inc		al						; i = (i + 1) % 256
+	mov		dl, [esi + eax]			; dl = sbox[i]
+	add		bl, dl					; bl = j = (j + sbox[i]) % 256
+	xchg	dl, [esi + ebx]			; swap sbox[i], sbox[j], dl = sbox[j]
+	mov		[esi + eax], dl			; sbox[i] = sbox[j], dl = sbox[j]
+	add		dl, [esi + eax]			; dl = sbox[j] + sbox[i]
+	mov		dl, [esi + edx]			; dl = sbox[sbox[i] + sbox[j]]
+	xor		byte ptr[edi], dl		; *data ^= dl
+	inc		edi						; ++data
+	loop	crypt_data
+	popad
+	ret 8
+crypt ENDP
