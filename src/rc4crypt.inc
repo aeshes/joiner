@@ -1,7 +1,7 @@
 .data
 sbox		db 256 dup(0)
-rc4key			db "XXX",0
-rc4keylen		db 11
+rc4key		db "XXX",0
+rc4keylen	db 11
 
 .code
 
